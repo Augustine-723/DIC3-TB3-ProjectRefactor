@@ -1,0 +1,63 @@
+% Figure 2: Validation-Dispatch-Monitoring Workflow
+\begin{tikzpicture}[
+    scale=0.82, every node/.style={transform shape},
+    startstop/.style={rectangle, rounded corners=6pt, minimum width=2.4cm, minimum height=0.6cm, align=center, draw=black!80, fill=gray!20, font=\scriptsize\bfseries},
+    process/.style={rectangle, minimum width=2.4cm, minimum height=0.65cm, align=center, draw=black!80, fill=blue!8, font=\scriptsize},
+    decision/.style={diamond, aspect=1.8, minimum width=2.2cm, align=center, draw=black!80, fill=yellow!15, font=\scriptsize},
+    arr/.style={->, >=stealth, thick, draw=black!70},
+    fail/.style={rectangle, rounded corners=3pt, minimum width=1.8cm, minimum height=0.55cm, align=center, draw=red!70, fill=red!10, font=\scriptsize\bfseries},
+    succ/.style={rectangle, rounded corners=3pt, minimum width=1.8cm, minimum height=0.55cm, align=center, draw=green!70, fill=green!10, font=\scriptsize\bfseries}
+]
+
+% Nodes
+\node[startstop] (start) at (0, 0) {User Input (Chinese)};
+\node[decision] (cancel) at (0, -1.2) {Explicit Cancel?};
+\node[process] (do_cancel) at (3.2, -1.2) {Invoke Cancel Tool\\\& Wait Confirmation};
+\node[fail] (res_cancel) at (3.2, -2.4) {Report CANCELED};
+
+\node[process] (parse) at (0, -2.5) {Parse LLM Intent\\(JSON Schema)};
+\node[decision] (allow) at (0, -3.8) {Registry Check?};
+\node[fail] (clarify) at (3.2, -3.8) {Report CLARIFY /\\REJECTED};
+
+\node[process] (sensor) at (0, -5.1) {Pre-Dispatch State Check\\(LiDAR Age, TF, AMCL)};
+\node[decision] (valid) at (0, -6.3) {State Fresh \& Valid?};
+\node[fail] (notready) at (3.2, -6.3) {Report NOT\_READY};
+
+\node[process] (path) at (0, -7.5) {Feasibility Check\\(\texttt{get\_path} via Nav2)};
+\node[decision] (path_ok) at (0, -8.7) {Feasible Path?};
+\node[fail] (nopath) at (3.2, -8.7) {Report NO\_PATH};
+
+\node[process, fill=cyan!15] (dispatch) at (0, -9.9) {Dispatch Nav2 Action\\(\texttt{navigate\_to\_pose})};
+\node[process] (monitor) at (0, -11.0) {Monitor Feedback \&\\Append to Event Log};
+
+\node[decision] (terminal) at (0, -12.3) {Terminal Outcome?};
+\node[succ] (arrived) at (-2.6, -13.5) {Report ARRIVED\\(Action Success)};
+\node[fail] (failed) at (0, -13.5) {Report FAILED\\(Exhausted Retries)};
+\node[fail] (timeout) at (2.6, -13.5) {Report TIMEOUT\\/ FAULT};
+
+% Arrows
+\draw[arr] (start) -- (cancel);
+\draw[arr] (cancel) -- node[above, font=\tiny]{Yes} (do_cancel);
+\draw[arr] (do_cancel) -- (res_cancel);
+\draw[arr] (cancel) -- node[left, font=\tiny]{No} (parse);
+
+\draw[arr] (parse) -- (allow);
+\draw[arr] (allow) -- node[above, font=\tiny]{Ambiguous/Unknown} (clarify);
+\draw[arr] (allow) -- node[left, font=\tiny]{Valid Landmark} (sensor);
+
+\draw[arr] (sensor) -- (valid);
+\draw[arr] (valid) -- node[above, font=\tiny]{Stale/Diverged} (notready);
+\draw[arr] (valid) -- node[left, font=\tiny]{Pass} (path);
+
+\draw[arr] (path) -- (path_ok);
+\draw[arr] (path_ok) -- node[above, font=\tiny]{No} (nopath);
+\draw[arr] (path_ok) -- node[left, font=\tiny]{Yes} (dispatch);
+
+\draw[arr] (dispatch) -- (monitor);
+\draw[arr] (monitor) -- (terminal);
+
+\draw[arr] (terminal) -| node[above, font=\tiny, pos=0.3]{Succeeded} (arrived);
+\draw[arr] (terminal) -- node[left, font=\tiny]{Failed} (failed);
+\draw[arr] (terminal) -| node[above, font=\tiny, pos=0.3]{Timeout} (timeout);
+
+\end{tikzpicture}

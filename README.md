@@ -38,26 +38,57 @@ Three research questions drive the evaluation:
 
 ---
 
+## DIC4 — IEEE Conference Paper Draft (ICEIB)
+
+This repository extends the DIC3 refactor with a complete academic conference draft targeting the **International Conference on Electronic Communications, Internet of Things and Big Data (ICEIB)** (IEEE Conference Track).
+
+- **Paper Title**: *A Validation-Aware and Evidence-Grounded AI Agent for Indoor Navigation Using TurtleBot3*
+- **Authors**: Zhi-Heng Chen (7115064009), Cheng-Hao Hsiao (7115064186), Rui-Yu Lin (7115064168), Yuan-Mei Chiu (7115064159), and Yi-Kai Guan (7115093001)
+- **Affiliation**: Group 7, Department of Information and Communication Engineering, National Taiwan University of Science and Technology
+- **Draft Files**:
+  - `ICEIB/main.tex`: Compilable LaTeX source using official `IEEEtran` conference class.
+  - `ICEIB/main.txt`: Full, unabridged academic manuscript text.
+  - `ICEIB/references.bib`: Verified IEEE BibTeX bibliography covering references [1]–[12].
+  - `ICEIB/IEEEtran.cls`: Official IEEE document class (v1.8b).
+  - `ICEIB/figures/`: Vector TikZ source files for Figure 1 (Architecture) and Figure 2 (Workflow).
+  - `ICEIB/overleaf-upload.zip`: Complete self-contained package for immediate Overleaf import.
+  - `ICEIB/README.md`: Compilation and Overleaf import instructions.
+- **OpenSpec Change**: `openspec/changes/dic4-ieee-conference-draft/`
+
+### Overleaf Import Workflow
+1. Download `ICEIB/overleaf-upload.zip`.
+2. Go to [Overleaf](https://www.overleaf.com), select **New Project** → **Upload Project**, and upload the ZIP.
+3. Confirm that `main.tex` is selected as the main file, and click **Recompile**.
+
+---
+
 ## OpenSpec Workflow
 
-This project uses [OpenSpec](https://openspec.dev) Spec-Driven Development. The change `tb3-proposal-refactor` documents the full research specification.
+This project uses [OpenSpec](https://openspec.dev) Spec-Driven Development. Two active changes document the full research specification:
+1. `tb3-proposal-refactor`: DIC3 research specification refactor.
+2. `dic4-ieee-conference-draft`: DIC4 IEEE conference draft specification.
 
 ### Artifact Dependency Order
 
 ```
-proposal.md   →   specs/ (5 capabilities)   →   design.md   →   tasks.md
+proposal.md   →   specs/   →   design.md   →   tasks.md
 ```
 
 ### Checking Status
 
 ```bash
+# Check DIC3 change
 openspec status --change tb3-proposal-refactor
+
+# Check DIC4 change
+openspec status --change dic4-ieee-conference-draft
 ```
 
 ### Validating Specs
 
 ```bash
-openspec validate --change tb3-proposal-refactor
+# Strict validation of DIC4 change
+openspec validate dic4-ieee-conference-draft --strict
 ```
 
 ---
@@ -69,24 +100,40 @@ DIC3-TB3-ProjectRefactor/
 ├── README.md                          ← This file
 ├── proposal.md                        ← OpenSpec change proposal (root)
 │
+├── ICEIB/                             ← DIC4 IEEE Conference Package
+│   ├── main.tex                       ← Compilable Overleaf LaTeX entry point
+│   ├── main.txt                       ← Complete plain text manuscript
+│   ├── references.bib                 ← BibTeX bibliography (refs [1]–[12])
+│   ├── IEEEtran.cls                   ← Official IEEE LaTeX conference class
+│   ├── figures/                       ← Vector graphics and TikZ diagrams
+│   │   ├── fig1_architecture.tex      ← Figure 1: 3-Layer, 8-Module Architecture
+│   │   └── fig2_workflow.tex          ← Figure 2: Validation-Dispatch Workflow
+│   ├── overleaf-upload.zip            ← Self-contained Overleaf upload package
+│   └── README.md                      ← Overleaf import and compilation instructions
+│
 ├── openspec/
 │   ├── config.yaml                    ← OpenSpec project configuration
-│   ├── specs/                         ← Main specs (empty; this is a docs-only change)
+│   ├── specs/                         ← Main specs
 │   └── changes/
-│       └── tb3-proposal-refactor/
-│           ├── .openspec.yaml         ← Change metadata
-│           ├── design.md              ← System architecture and design decisions
-│           ├── tasks.md               ← Implementation and verification checklist
+│       ├── tb3-proposal-refactor/     ← DIC3 change artifacts (preserved)
+│       │   ├── .openspec.yaml
+│       │   ├── design.md
+│       │   ├── tasks.md
+│       │   └── specs/
+│       └── dic4-ieee-conference-draft/ ← DIC4 change artifacts
+│           ├── .openspec.yaml
+│           ├── proposal.md
+│           ├── design.md
+│           ├── tasks.md
 │           └── specs/
-│               ├── task-understanding/spec.md
-│               ├── navigation-validation/spec.md
-│               ├── task-execution/spec.md
-│               ├── evidence-reporting/spec.md
-│               └── evaluation/spec.md
+│               ├── conference-paper-manuscript/spec.md
+│               ├── source-traceability/spec.md
+│               ├── publication-formatting-build/spec.md
+│               └── release-delivery/spec.md
 │
-├── docs/
-│   ├── abstract-A-to-F.md             ← A–F research structure (proposal narrative)
-│   ├── abstract-ieee.md               ← IEEE-style abstract (≤ 250 words)
+├── docs/                              ← DIC3 Research Documentation
+│   ├── abstract-A-to-F.md             ← A–F research structure
+│   ├── abstract-ieee.md               ← IEEE-style abstract
 │   ├── introduction.md                ← Academic introduction with RQ1–RQ3
 │   ├── related-work.md                ← Literature review (refs [1]–[12])
 │   ├── core-concepts.md               ← Five design principles (Slide 7)

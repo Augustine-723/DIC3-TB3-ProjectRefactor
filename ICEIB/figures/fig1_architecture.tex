@@ -12,10 +12,10 @@
 \node[layer, minimum width=8.2cm, minimum height=2.4cm] (l1) at (0, 3.8) {};
 \node[lbl, anchor=north west] at (l1.north west) {LAYER 1: INTERACTION \& AGENT REASONING};
 
-\node[box, fill=orange!10] (m1) at (-2.8, 4.2) {① User\\ \tiny (Chinese Input / Confirm)};
-\node[box] (m2) at (-0.9, 4.2) {② Task Input\\ \tiny (Message Buffer)};
-\node[box, fill=purple!10] (m3) at (1.5, 4.2) {③ Task Agent\\ \tiny (LLM Intent / Schema)};
-\node[box, fill=green!10] (m8) at (-0.9, 3.0) {⑧ Output \& Interaction\\ \tiny (Clarify / Evidence Report)};
+\node[box, fill=orange!10] (m1) at (-2.8, 4.2) {M1: User\\ \tiny (Chinese Input / Confirm)};
+\node[box] (m2) at (-0.9, 4.2) {M2: Task Input\\ \tiny (Message Buffer)};
+\node[box, fill=purple!10] (m3) at (1.5, 4.2) {M3: Task Agent\\ \tiny (LLM Intent / Schema)};
+\node[box, fill=green!10] (m8) at (-0.9, 3.0) {M8: Output \& Inter.\\ \tiny (Clarify / Evidence Report)};
 
 \draw[arr] (m1) -- (m2);
 \draw[arr] (m2) -- (m3);
@@ -26,10 +26,10 @@
 \node[layer, minimum width=8.2cm, minimum height=2.6cm] (l2) at (0, 1.0) {};
 \node[lbl, anchor=north west] at (l2.north west) {LAYER 2: KNOWLEDGE, VALIDATION \& DISPATCH};
 
-\node[box, fill=yellow!10] (m6) at (-2.8, 1.4) {⑥ Domain Knowledge\\ \tiny (Landmark Registry)};
-\node[box] (m4) at (-0.9, 1.4) {④ Data Acquisition\\ \tiny (Sensors / Odom / TF)};
-\node[box, fill=red!10] (m5) at (1.5, 1.4) {⑤ Analysis Engine\\ \tiny (Freshness / Feasibility)};
-\node[box, fill=cyan!10] (m7) at (1.5, 0.2) {⑦ Decision \& Tool\\ \tiny (Nav2 Dispatch / Cancel)};
+\node[box, fill=yellow!10] (m6) at (-2.8, 1.4) {M6: Domain Knowl.\\ \tiny (Landmark Registry)};
+\node[box] (m4) at (-0.9, 1.4) {M4: Data Acquis.\\ \tiny (Sensors / Odom / TF)};
+\node[box, fill=red!10] (m5) at (1.5, 1.4) {M5: Analysis Eng.\\ \tiny (Freshness / Feasibility)};
+\node[box, fill=cyan!10] (m7) at (1.5, 0.2) {M7: Decision \& Tool\\ \tiny (Nav2 Dispatch / Cancel)};
 \node[box, fill=gray!15] (log) at (-1.8, 0.2) {Event Log\\ \tiny (\texttt{events.jsonl})};
 
 \draw[arr] (m6) -- (m3);

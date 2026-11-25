@@ -44,7 +44,7 @@ This repository extends the DIC3 refactor with a complete academic conference dr
 
 - **Paper Title**: *A Validation-Aware and Evidence-Grounded AI Agent for Indoor Navigation Using TurtleBot3*
 - **Authors**: Zhi-Heng Chen (7115064009), Cheng-Hao Hsiao (7115064186), Rui-Yu Lin (7115064168), Yuan-Mei Chiu (7115064159), and Yi-Kai Guan (7115093001)
-- **Affiliation**: Group 7, Department of Information and Communication Engineering, National Taiwan University of Science and Technology
+- **Affiliation**: Group 7, TurtleBot3 Project Team
 - **Draft Files**:
   - `ICEIB/main.tex`: Compilable LaTeX source using official `IEEEtran` conference class.
   - `ICEIB/main.txt`: Full, unabridged academic manuscript text.

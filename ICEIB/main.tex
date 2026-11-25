@@ -14,6 +14,23 @@
 \usetikzlibrary{shapes.geometric, arrows, positioning, fit, calc}
 \usepackage{url}
 
+% Tighten bibliography item spacing to ensure all 12 references fit cleanly on page 8
+\makeatletter
+\def\thebibliography#1{\section*{\refname}%
+    \addcontentsline{toc}{section}{\refname}%
+    \footnotesize\vskip 0pt%
+    \list{\@biblabel{\@arabic\c@enumiv}}%
+    {\settowidth\labelwidth{\@biblabel{#1}}%
+    \leftmargin\labelwidth
+    \advance\leftmargin\labelsep
+    \usecounter{enumiv}%
+    \let\p@enumiv\@empty
+    \renewcommand\theenumiv{\@arabic\c@enumiv}}%
+    \def\IEEEbibitemsep{-0.5pt}%
+    \sloppy\clubpenalty4000\widowpenalty4000\interlinepenalty500%
+    \sfcode`\.=1000\relax}
+\makeatother
+
 \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
 
@@ -30,9 +47,7 @@
         Yi-Kai Guan (7115093001)
     }
     \IEEEauthorblockA{
-        \textit{Group 7, Department of Information and Communication Engineering} \\
-        \textit{National Taiwan University of Science and Technology} \\
-        Taipei, Taiwan
+        \textit{Group 7, TurtleBot3 Project Team}
     }
 }
 
@@ -48,7 +63,7 @@ indoor navigation, language-controlled robotics, ROS 2, Nav2, TurtleBot3, large 
 
 \section{Introduction}
 
-The convergence of Large Language Models (LLMs) and autonomous robotic systems has established a promising paradigm for natural human-robot interaction in mobile robotics \cite{Yao2023react, Ahn2022saycan}. In indoor service and laboratory environments, natural language interfaces enable non-expert users to dispatch complex spatial tasks using intuitive phrases (e.g., in Mandarin Chinese, ``請去實驗桌'' or ``帶我去門口'') without needing to memorize specific coordinates, system menus, or domain-specific command syntax.
+The convergence of Large Language Models (LLMs) and autonomous robotic systems has established a promising paradigm for natural human-robot interaction in mobile robotics \cite{Yao2023react, Ahn2022saycan}. In indoor service and laboratory environments, natural language interfaces enable non-expert users to dispatch complex spatial tasks using intuitive phrases (e.g., in Mandarin Chinese, ``Please go to the experiment table'' [\textit{qing qu shi yan zhuo}] or ``Take me to the door'' [\textit{dai wo qu men kou}]) without needing to memorize specific coordinates, system menus, or domain-specific command syntax.
 
 However, interpreting natural language alone does not guarantee reliable or safe physical robot operation. Physical mobile robot navigation in constrained indoor environments is fundamentally governed by real-world physical and sensor uncertainties:
 \begin{enumerate}
@@ -82,25 +97,26 @@ Recent advances in natural language processing have demonstrated that LLMs can f
 The open-source ROS~2 ecosystem provides robust, production-grade navigation and localization infrastructure. Macenski et al. \cite{Macenski2020marathon2} introduced the Marathon 2 Navigation System (Nav2), utilizing a behavior-tree architecture to coordinate global planners, local trajectory controllers, costmaps, and recovery behaviors. Macenski and Jambrecic \cite{Macenski2021slamtoolbox} developed SLAM Toolbox, offering lifelong mapping and optimization-based pose-graph localization in dynamic indoor environments. These components provide the foundational execution layer for our work. However, Nav2 and SLAM Toolbox operate purely on geometric coordinates and costmaps; they possess no inherent mechanisms for interpreting semantic Chinese text, resolving landmark ambiguities, or enforcing pre-dispatch validation rules prior to action dispatch.
 
 \subsection{Navigation Reliability in Constrained Environments}
-Evaluating mobile robot reliability in tightly constrained environments has received heightened attention. Xiao et al. \cite{Xiao2022barn, Xiao2026barn} established the Benchmark Autonomous Robot Navigation (BARN) Challenge at ICRA, evaluating classical and learning-based planners across complex physical and simulated obstacle fields. Similarly, El-Hariry et al. \cite{ElHariry2025navbench} introduced NavBench, standardizing cross-platform reinforcement learning evaluations. These benchmarks highlight that navigation reliability depends heavily on footprint-to-gap ratios, costmap inflation parameters, and sensor coverage limitations.
+Evaluating mobile robot reliability in tightly constrained environments has received heightened attention. Xiao et al. \cite{Xiao2022barn} established the Benchmark Autonomous Robot Navigation (BARN) Challenge at ICRA, evaluating classical and learning-based planners across complex physical and simulated obstacle fields. Similarly, El-Hariry et al. \cite{ElHariry2025navbench} introduced NavBench, standardizing cross-platform reinforcement learning evaluations. The ongoing BARN Challenge 2026 \cite{Xiao2026barn} further underscores the unresolved nature of navigating dense spaces without collisions. These benchmarks highlight that navigation reliability depends heavily on footprint-to-gap ratios, costmap inflation parameters, and sensor coverage limitations.
 
 \begin{table*}[t]
 \caption{Related Work and Capability Comparison}
 \label{tab:related_work}
 \centering
 \scriptsize
-\begin{tabular}{p{2.6cm}p{2.0cm}p{1.8cm}cccc}
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{p{2.3cm}p{2.4cm}p{2.1cm}p{1.9cm}p{2.2cm}p{2.2cm}p{1.9cm}}
 \toprule
-\textbf{Approach / Reference} & \textbf{Focus / Method} & \textbf{Target Platform} & \textbf{Chinese NL Parsing} & \textbf{Pre-Dispatch State Check} & \textbf{Evidence-Grounded Report} & \textbf{Controlled Baseline Isolation} \\
+\textbf{Approach / Reference} & \textbf{Focus / Method} & \textbf{Target Platform} & \textbf{Chinese NL Parsing} & \textbf{Pre-Dispatch State Check} & \textbf{Evidence-Grounded Reporting} & \textbf{Controlled Isolation} \\
 \midrule
-ReAct (Yao et al. \cite{Yao2023react}) & Reasoning + Action & Text / Virtual Web & No & No & Partial & No \\
-SayCan (Ahn et al. \cite{Ahn2022saycan}) & Affordance Grounding & Mobile Manipulator & No & Skill Affordance & No & No \\
-Pollini et al. \cite{Pollini2025latency} & LLM-ROS 2 Latency & Gazebo Mobile Robot & No & No & No & No \\
-Nav2 (Macenski et al. \cite{Macenski2020marathon2}) & BT Modular Navigation & Campus / Industrial & N/A & Internal Recovery & No & Fixed Stack \\
-SLAM Toolbox \cite{Macenski2021slamtoolbox} & 2D Mapping / Localization & Mobile Robots & N/A & Odometry/Scan & N/A & N/A \\
-BARN Challenge \cite{Xiao2022barn, Xiao2026barn} & Constrained Navigation & Jackal Ground Robot & N/A & Costmap Collision & No & Benchmark \\
-NavBench (El-Hariry \cite{ElHariry2025navbench}) & RL Navigation Benchmark & Simulation / Wheeled & N/A & Policy Space & No & Benchmark \\
-\textbf{Proposed System} & \textbf{Validation-Aware Agent} & \textbf{TurtleBot3 Burger} & \textbf{Yes} & \textbf{Yes (Freshness, TF, Path)} & \textbf{Yes (Nav2 Action Log)} & \textbf{Yes (B0/B1/B2 Fixed Nav2)} \\
+ReAct \cite{Yao2023react} & Reasoning + Actions & Text / Virtual Web & No & No & Partial & No \\
+SayCan \cite{Ahn2022saycan} & Affordance Grounding & Mobile Manipulator & No & Skill Affordance & No & No \\
+Pollini et al. \cite{Pollini2025latency} & LLM-ROS~2 Latency & Gazebo Mobile Robot & No & No & No & No \\
+Nav2 \cite{Macenski2020marathon2} & Modular Navigation & Mobile Ground Robots & N/A & Internal Recovery & No & Fixed Substrate \\
+SLAM Toolbox \cite{Macenski2021slamtoolbox} & Mapping / Localization & Mobile Robots & N/A & Scan Matching / Odom & N/A & N/A \\
+BARN \cite{Xiao2022barn, Xiao2026barn} & Constrained Benchmark & Clearpath Jackal & N/A & Costmap Collision & No & Benchmark \\
+NavBench \cite{ElHariry2025navbench} & RL Navigation Bench & Wheeled Robots / Sim & N/A & Policy Space & No & Benchmark \\
+\textbf{Proposed System} & \textbf{Validation-Aware Agent} & \textbf{TurtleBot3 Burger} & \textbf{Yes} & \textbf{Yes (Freshness, TF, Path)} & \textbf{Yes (Nav2 Action Log)} & \textbf{Yes (Fixed Nav2)} \\
 \bottomrule
 \end{tabular}
 \end{table*}
@@ -118,11 +134,11 @@ Table~\ref{tab:related_work} contrasts the proposed architecture against existin
 \section{Proposed System Architecture}
 
 \subsection{Platform and Operational Constraints}
-The system targets a physical TurtleBot3 Burger mobile robot operating in a structured indoor laboratory environment. The platform specifications are summarized as follows:
+The system targets a physical TurtleBot3 Burger mobile robot operating in a structured indoor laboratory environment \cite{RobotisTurtlebot3}. The platform specifications are summarized as follows:
 \begin{itemize}
-    \item \textbf{Robot Platform}: TurtleBot3 Burger (differential drive, wheel radius 33\,mm, track width 160\,mm).
+    \item \textbf{Robot Platform}: TurtleBot3 Burger (differential drive, wheel radius 33\,mm, track width 160\,mm) \cite{RobotisTurtlebot3}.
     \item \textbf{Compute and Middleware}: Onboard single-board computer running Ubuntu 22.04 LTS and ROS~2 Humble Hawksbill.
-    \item \textbf{Primary Sensor}: 360$^\circ$ planar 2D LiDAR (LDS-01/02), scanning at 5\,Hz on a horizontal plane at an elevation of 145\,mm.
+    \item \textbf{Primary Sensor}: 360$^\circ$ planar 2D LiDAR (LDS-01/02), scanning at 5\,Hz on a horizontal plane at an elevation of 145\,mm \cite{RobotisTurtlebot3}.
     \item \textbf{Localization and Navigation}: AMCL pose estimation coupled with Nav2 behaviour-tree navigation on a pre-built 2D occupancy grid ($0.05\,\text{m}/\text{pixel}$).
     \item \textbf{Scope Boundaries}: Single-floor planar navigation, pre-registered static landmarks, and Chinese-language commands. Multi-floor elevation, dynamic destination registration, and direct motor control from the LLM are strictly out of scope.
 \end{itemize}
@@ -130,7 +146,7 @@ The system targets a physical TurtleBot3 Burger mobile robot operating in a stru
 \begin{figure}[t]
 \centering
 \input{figures/fig1_architecture.tex}
-\caption{Overall system architecture illustrating the three hierarchical layers, eight functional modules, and interaction with ROS~2 Humble Nav2.}
+\caption{Overall system architecture illustrating the three hierarchical layers, eight functional modules (M1--M8), and interaction with ROS~2 Humble Nav2.}
 \label{fig:arch}
 \end{figure}
 
@@ -139,43 +155,46 @@ As depicted in Fig.~\ref{fig:arch}, the system is organized into eight dedicated
 
 \subsubsection{Layer 1: Interaction and Agent Reasoning}
 \begin{itemize}
-    \item \textbf{Module ① User}: Interacts with the robot via Mandarin Chinese natural language text, submitting task requests, providing disambiguation clarifications, or issuing urgent cancellations.
-    \item \textbf{Module ② Task Input}: Ingests incoming user strings, assigns unique message identifiers, and buffers requests under a strict single-task execution lock.
-    \item \textbf{Module ③ Task Agent}: Houses the core LLM intent parser. It maps natural language into constrained JSON tool calls against an allowed tool schema. It is strictly prohibited from generating raw velocities or arbitrary coordinates.
-    \item \textbf{Module ⑧ Output and Interaction}: Synthesizes user-facing status messages, formulating structured clarification inquiries or delivering terminal mission reports grounded in physical execution evidence.
+    \item \textbf{Module 1 (User Interaction)}: Interacts with the robot via Mandarin Chinese natural language text, submitting task requests, providing disambiguation clarifications, or issuing urgent cancellations.
+    \item \textbf{Module 2 (Task Input Buffer)}: Ingests incoming user strings, assigns unique message identifiers, and buffers requests under a strict single-task execution lock.
+    \item \textbf{Module 3 (Task Agent / LLM)}: Houses the core LLM intent parser. It maps natural language into constrained JSON tool calls against an allowed tool schema. It is strictly prohibited from generating raw velocities or arbitrary coordinates.
+    \item \textbf{Module 8 (Output and Reporting)}: Synthesizes user-facing status messages, formulating structured clarification inquiries or delivering terminal mission reports grounded in physical execution evidence.
 \end{itemize}
 
 \subsubsection{Layer 2: Knowledge, Validation, and Tool Dispatch}
 \begin{itemize}
-    \item \textbf{Module ④ Data Acquisition}: Continuously subscribes to ROS~2 telemetry, aggregating LaserScan messages (\texttt{/scan}), wheel odometry (\texttt{/odom}), localization estimates (\texttt{/amcl\_pose}), and the TF2 transform tree (\texttt{map} $\to$ \texttt{odom} $\to$ \texttt{base\_link}).
-    \item \textbf{Module ⑤ Analysis Engine}: Executes pre-dispatch safety and state checks. It evaluates sensor data age against freshness thresholds, verifies TF continuity and localization covariance, and queries the Nav2 global planner for geometric path feasibility.
-    \item \textbf{Module ⑥ Domain Knowledge}: Maintains the authoritative Landmark Registry (\texttt{landmarks.json}), semantic Chinese aliases, forbidden operational zones, and tool parameter schemas.
-    \item \textbf{Module ⑦ Decision and Tool Dispatch}: Manages navigation action lifecycles. It interfaces directly with Nav2 action servers through a Navigation Adapter, monitors feedback, tracks execution timeouts, enforces cancellation requests, and appends structured records to an immutable event audit log (\texttt{events.jsonl}).
+    \item \textbf{Module 4 (Data Acquisition)}: Continuously subscribes to ROS~2 telemetry, aggregating LaserScan messages (\texttt{/scan}), wheel odometry (\texttt{/odom}), localization estimates (\texttt{/amcl\_pose}), and the TF2 transform tree (\texttt{map} $\to$ \texttt{odom} $\to$ \texttt{base\_link}).
+    \item \textbf{Module 5 (Analysis Engine)}: Executes pre-dispatch safety and state checks. It evaluates sensor data age against freshness thresholds, verifies TF continuity and localization covariance, and queries the Nav2 global planner for geometric path feasibility.
+    \item \textbf{Module 6 (Domain Knowledge)}: Maintains the authoritative Landmark Registry (\texttt{landmarks.json}), semantic Chinese aliases, forbidden operational zones, and tool parameter schemas.
+    \item \textbf{Module 7 (Decision and Tool Dispatch)}: Manages navigation action lifecycles. It interfaces directly with Nav2 action servers through a Navigation Adapter, monitors feedback, tracks execution timeouts, enforces cancellation requests, and appends structured records to an immutable event audit log (\texttt{events.jsonl}).
 \end{itemize}
 
 \subsubsection{Layer 3: Execution, Nav2, and Physical Robot}
 \begin{itemize}
-    \item \textbf{ROS~2 Nav2 Stack}: Houses the modular navigation pipeline, including the Behavior Tree Navigator, NavFn/Smac Global Planner, DWB Local Controller, Costmap2D obstacle layers, and recovery plugins.
-    \item \textbf{TurtleBot3 Hardware}: Executes closed-loop differential motor control via the OpenCR microcontroller and streams planar LiDAR distance arrays.
+    \item \textbf{ROS~2 Nav2 Stack}: Houses the modular navigation pipeline, including the Behavior Tree Navigator, NavFn/Smac Global Planner, DWB Local Controller, Costmap2D obstacle layers, Collision Monitor \cite{Nav2CollisionMonitor}, and recovery plugins.
+    \item \textbf{TurtleBot3 Hardware}: Executes closed-loop differential motor control via the OpenCR microcontroller and streams planar LiDAR distance arrays \cite{RobotisTurtlebot3}.
 \end{itemize}
 
 \subsection{Governing Design Principles}
 The architectural separation of concerns is grounded in five core engineering principles established in mobile robotics:
 \begin{enumerate}
     \item \textit{Localization Uncertainty}: Position belief is a probabilistic estimate subject to drift. The agent must verify that AMCL localization covariance is within bounds and that the TF chain is active before dispatching goals.
-    \item \textit{Sensor Limitations}: 2D LiDAR cannot detect obstacles above or below its horizontal scan plane. The system enforces sensor freshness thresholds ($\Delta t < 1.0\,\text{s}$) to prevent dispatching goals using stale sensor data, and transparently discloses planar blind spots.
+    \item \textit{Sensor Limitations}: 2D LiDAR cannot detect obstacles above or below its horizontal scan plane. The system enforces sensor freshness thresholds ($\Delta t < 1.0\,\text{s}$) to prevent dispatching goals using stale sensor data, and transparently discloses planar blind spots \cite{RobotisTurtlebot3}.
     \item \textit{Physical Navigation Feasibility}: Paths must accommodate the robot's physical circular footprint. If Nav2's global planner cannot generate a collision-free path under configured footprint inflation, the agent rejects dispatch with \texttt{NO\_PATH}.
-    \item \textit{Hierarchical Separation of Control}: Real-time obstacle avoidance demands millisecond-scale reactive loops, whereas LLM reasoning incurs hundreds of milliseconds of latency. Therefore, real-time safety remains exclusively within Nav2's local controller; the LLM never executes real-time motor control loops.
+    \item \textit{Hierarchical Separation of Control}: Real-time obstacle avoidance demands millisecond-scale reactive loops, whereas LLM reasoning incurs hundreds of milliseconds of latency. Therefore, real-time safety remains exclusively within Nav2's local controller and collision monitor \cite{Nav2CollisionMonitor}; the LLM never executes real-time motor control loops.
     \item \textit{Reproducible Reliability Evaluation}: True system reliability cannot be inferred from cherry-picked successful trials. All failures, timeouts, and anomalies must be captured in immutable event logs and fully reported.
 \end{enumerate}
 
 \section{Methodology and Task Workflow}
 
 \subsection{Chinese Natural Language Intent Parsing}
-When a Chinese text command is ingested by Module~②, the Task Agent (Module~③) parses the utterance into a structured intent matching a rigid JSON schema:
+When a Chinese text command is ingested by Module~2, the Task Agent (Module~3) parses the utterance into a structured intent matching a rigid JSON schema:
 \begin{equation}
 \label{eq:intent}
-\mathcal{I} = \{ \text{intent}: \texttt{"navigate"} \mid \texttt{"cancel"} \mid \texttt{"query"}, \; \text{landmark\_id}: \text{string} \}
+\begin{aligned}
+\mathcal{I} = \{ & \text{intent}: \texttt{navigate} \mid \texttt{cancel} \mid \texttt{query}, \\
+& \text{landmark\_id}: \text{string} \}
+\end{aligned}
 \end{equation}
 The prompt explicitly binds the output space to allowed tool names and registered landmark identifiers. Any command attempting to inject arbitrary Python code, raw velocity vectors, or unlisted destinations is immediately rejected by the schema validator.
 
@@ -183,9 +202,9 @@ The prompt explicitly binds the output space to allowed tool names and registere
 The Landmark Registry acts as the authoritative knowledge base, mapping natural Chinese names and aliases to registered poses $\mathbf{p} = (x, y, \theta)$ in the \texttt{map} frame:
 \begin{equation}
 \label{eq:landmark}
-\mathcal{L}_{\text{entry}} = \langle \text{id}, \text{display\_name}, \{\text{aliases}\}, (x, y, \theta)_{\text{map}} \rangle
+\mathcal{L} = \langle \text{id}, \text{name}, \mathcal{A}, (x, y, \theta)_{\text{map}} \rangle
 \end{equation}
-When parsed intent yields an unrecognized target, the agent returns \texttt{REJECTED}. Crucially, when an intent matches multiple distinct registered destinations (e.g., ``門口'' in a laboratory with both \texttt{door-north} and \texttt{door-south}), the agent transitions to \texttt{CLARIFY}. It halts dispatch and instructs Module~⑧ to present a disambiguation query to the user, strictly avoiding arbitrary guessing.
+where $\mathcal{A}$ denotes the set of recognized natural language aliases. When parsed intent yields an unrecognized target, the agent returns \texttt{REJECTED}. Crucially, when an intent matches multiple distinct registered destinations (e.g., ``the door'' [\textit{men kou}] in a laboratory with both \texttt{door-north} and \texttt{door-south}), the agent transitions to \texttt{CLARIFY}. It halts dispatch and instructs Module~8 to present a disambiguation query to the user, strictly avoiding arbitrary guessing.
 
 \begin{figure}[t]
 \centering
@@ -195,7 +214,7 @@ When parsed intent yields an unrecognized target, the agent returns \texttt{REJE
 \end{figure}
 
 \subsection{Pre-Dispatch Robot State and Path Validation}
-Prior to issuing any navigation action to Nav2, Module~⑤ performs three mandatory pre-checks:
+Prior to issuing any navigation action to Nav2, Module~5 performs three mandatory pre-checks:
 \begin{enumerate}
     \item \textit{Sensor Freshness Check}: Verifies that the timestamp of the latest \texttt{/scan} message satisfies $t_{\text{current}} - t_{\text{scan}} < \tau_{\text{sensor}}$ (with $\tau_{\text{sensor}} = 1.0\,\text{s}$). Stale scans indicate sensor failure or driver hang, yielding \texttt{NOT\_READY}.
     \item \textit{Localization and TF Continuity Check}: Verifies that the transform from \texttt{map} to \texttt{base\_link} exists and has been updated within $\tau_{\text{TF}} = 0.5\,\text{s}$, and that AMCL pose covariance matrix eigenvalues remain below an empirically established dispersion limit $\sigma^2_{\text{pose}} < \sigma^2_{\text{thresh}}$.
@@ -203,18 +222,21 @@ Prior to issuing any navigation action to Nav2, Module~⑤ performs three mandat
 \end{enumerate}
 
 \subsection{Execution, Monitoring, and Exception Handling}
-Upon successful validation, Module~⑦ dispatches a \texttt{NavigateToPose} action goal to Nav2. The complete lifecycle workflow is illustrated in Fig.~\ref{fig:workflow}. During execution, the system maintains a single-task lock.
+Upon successful validation, Module~7 dispatches a \texttt{NavigateToPose} action goal to Nav2. The complete lifecycle workflow is illustrated in Fig.~\ref{fig:workflow}. During execution, the system maintains a single-task lock.
 \begin{itemize}
-    \item \textit{Mid-Task Cancellation}: If the user issues an explicit cancel command (e.g., ``停止'' or ``取消''), the request bypasses LLM re-reasoning. Module~⑦ transmits a cancel goal request directly to the Nav2 action client. The agent monitors status until Nav2 confirms action termination, only then transitioning to \texttt{CANCELED}.
+    \item \textit{Mid-Task Cancellation}: If the user issues an explicit cancel command (e.g., ``stop'' [\textit{ting zhi}] or ``cancel'' [\textit{qu xiao}]), the request bypasses LLM re-reasoning. Module~7 transmits a cancel goal request directly to the Nav2 action client \cite{Nav2SimpleCommander}. The agent monitors status until Nav2 confirms action termination, only then transitioning to \texttt{CANCELED}.
     \item \textit{Watchdog Timeout}: Each mission is assigned a maximum execution budget $T_{\text{max}} = 120\,\text{s}$. If Nav2 fails to achieve the goal within this window, the agent issues an abort and logs \texttt{TIMEOUT}.
     \item \textit{Qualified Single-Retry}: If Nav2 aborts due to a transient planner recovery failure, the agent verifies whether robot state remains valid and permits exactly one re-planning attempt before declaring \texttt{FAILED}.
 \end{itemize}
 
 \subsection{Evidence-Grounded Reporting}
-Module~⑧ delivers the final report to the user. A strict architectural constraint governs success reporting:
+Module~8 delivers the final report to the user. A strict architectural constraint governs success reporting:
 \begin{equation}
 \label{eq:evidence}
-\text{Report} = \texttt{ARRIVED} \iff (\mathcal{S}_{\text{Nav2}} = \texttt{SUCCEEDED}) \land (\|\mathbf{p}_{\text{final}} - \mathbf{p}_{\text{target}}\| < \epsilon_{\text{dist}})
+\begin{aligned}
+\text{Report} = \texttt{ARRIVED} \iff & (\mathcal{S}_{\text{Nav2}} = \texttt{SUCCEEDED}) \\
+& \land (\|\mathbf{p}_{\text{final}} - \mathbf{p}_{\text{target}}\| < \epsilon_{\text{dist}})
+\end{aligned}
 \end{equation}
 If Nav2 reports failure, or if communication is lost, the agent is structurally incapable of asserting success. All mission events, error codes, and intermediate timestamps are appended to \texttt{events.jsonl}.
 
@@ -230,8 +252,8 @@ To rigorously isolate the incremental contribution of the agent layer, we define
 
 In addition, two ablation variants isolate individual components:
 \begin{itemize}
-    \item \textbf{B2 $-$ Clarification}: Full agent omitting Module~⑧'s clarification prompt on ambiguous inputs, evaluating the specific contribution of clarification to preventing improper dispatch.
-    \item \textbf{B2 $-$ Agent Pre-Check}: Full agent omitting Module~⑤'s sensor freshness and path feasibility pre-checks prior to dispatch, while retaining Nav2's internal safety costmaps.
+    \item \textbf{B2 $-$ Clarification}: Full agent omitting Module~8's clarification prompt on ambiguous inputs, evaluating the specific contribution of clarification to preventing improper dispatch.
+    \item \textbf{B2 $-$ Agent Pre-Check}: Full agent omitting Module~5's sensor freshness and path feasibility pre-checks prior to dispatch, while retaining Nav2's internal safety costmaps.
 \end{itemize}
 
 Table~\ref{tab:baselines} delineates the functional capability matrix across all evaluated conditions.
@@ -241,9 +263,10 @@ Table~\ref{tab:baselines} delineates the functional capability matrix across all
 \label{tab:baselines}
 \centering
 \scriptsize
-\begin{tabular}{lccccc}
+\setlength{\tabcolsep}{2.0pt}
+\begin{tabular}{@{}p{3.1cm}ccccc@{}}
 \toprule
-\textbf{Capability / Feature} & \textbf{B0} & \textbf{B1} & \textbf{B2} & \textbf{B2$-$Clar.} & \textbf{B2$-$Pre.} \\
+\textbf{Capability / Feature} & \textbf{B0} & \textbf{B1} & \textbf{B2} & \textbf{B2-C} & \textbf{B2-P} \\
 \midrule
 Nav2 Execution Stack & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark \\
 Chinese Language Interface & $\times$ & \checkmark & \checkmark & \checkmark & \checkmark \\
@@ -256,6 +279,7 @@ Nav2 Path Feasibility Pre-Check & $\times$ & $\times$ & \checkmark & \checkmark 
 Mid-Task Cancellation Watchdog & $\times$ & $\times$ & \checkmark & \checkmark & \checkmark \\
 Evidence-Grounded Reporting & $\times$ & $\times$ & \checkmark & \checkmark & \checkmark \\
 \bottomrule
+\multicolumn{6}{@{}p{\columnwidth}@{}}{\scriptsize Note: B2-C denotes B2$-$Clarification; B2-P denotes B2$-$Agent Pre-Check.}
 \end{tabular}
 \end{table}
 
@@ -267,17 +291,18 @@ The planned evaluation framework comprises three distinct experimental tracks, d
 \label{tab:protocol}
 \centering
 \scriptsize
-\begin{tabular}{p{2.6cm}p{3.2cm}p{3.0cm}p{2.0cm}p{4.2cm}}
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{p{2.2cm}p{3.2cm}p{2.6cm}p{2.5cm}p{5.0cm}}
 \toprule
 \textbf{Evaluation Track} & \textbf{Scope and Input Distribution} & \textbf{Sample Size / Split} & \textbf{Evaluated Methods} & \textbf{Environment / Platform Setup} \\
 \midrule
-\textbf{Track 1: Language Understanding} & 6 command categories: Explicit, Ambiguous, Unknown, Cancel, Compound, Out-of-Scope (10 cases each) & 60 Chinese task cases (20 Development / 40 Test) & B1, B2, B2$-$Clar. (B0 marked N/A) & Offline evaluation harness; simulated prompt ingestion with ground-truth intent annotations. \\
+\textbf{Track 1: Language Understanding} & 6 command categories: Explicit, Ambiguous, Unknown, Cancel, Compound, Out-of-Scope (10 cases each) & 60 Chinese task cases (20 Dev / 40 Test) & B1, B2, B2-Clar. (B0 marked N/A) & Offline evaluation harness; simulated prompt ingestion with ground-truth intent annotations. \\
 \addlinespace[3pt]
-\textbf{Track 2: Simulation Navigation} & 4 Gazebo world environments $\times$ 2 distinct topological routes per world $\times$ 5 repetitions & 40 simulation trials per method (120 trials total across B0, B1, B2) & B0, B1, B2 & ROS~2 Humble + Gazebo 11 on Ubuntu 22.04 LTS; TurtleBot3 Burger model with simulated 2D LiDAR. \\
+\textbf{Track 2: Simulation Navigation} & 4 Gazebo worlds $\times$ 2 topological routes $\times$ 5 repetitions & 40 simulation trials per method (120 trials total) & B0, B1, B2 & ROS~2 Humble + Gazebo 11 on Ubuntu 22.04 LTS; TurtleBot3 Burger model with simulated 2D LiDAR. \\
 \addlinespace[3pt]
-\textbf{Track 3: Real-Robot Navigation} & 12 paired navigation task scenarios executed across standardized start-goal pairs & 12 paired trials per method (36 runs total across B0, B1, B2) & B0, B1, B2 & Physical TurtleBot3 Burger in structured indoor university laboratory floor; pre-built occupancy map. \\
+\textbf{Track 3: Real-Robot Navigation} & 12 paired navigation task scenarios across standardized start-goal pairs & 12 paired trials per method (36 runs total) & B0, B1, B2 & Physical TurtleBot3 Burger in structured indoor laboratory floor; pre-built occupancy map. \\
 \addlinespace[3pt]
-\textbf{Track 4: Ablation Studies} & Ambiguous language tasks and obstructed/stale pre-check conditions & 20 selected test cases per ablation variant & B2$-$Clar., B2$-$Pre. & Paired comparative trials against full B2 in simulation and physical environment. \\
+\textbf{Track 4: Ablation Studies} & Ambiguous language tasks and obstructed/stale pre-check conditions & 20 selected test cases per ablation variant & B2-Clar., B2-Pre. & Paired comparative trials against full B2 in simulation and physical environment. \\
 \bottomrule
 \end{tabular}
 \end{table*}
@@ -342,11 +367,14 @@ Navigation Latency ($T_2 \to T_3$) & RQ3 & Duration from Nav2 goal acceptance to
 \section{Proposed Evaluation and Expected Outcomes}
 
 \subsection{Expected Research Outcomes}
-The proposed validation-aware agent is anticipated to demonstrate clear, measurable improvements in task reliability and reporting fidelity, accompanied by a quantifiable interaction latency trade-off:
+The proposed validation-aware agent is anticipated to demonstrate clear improvements in task reliability and reporting fidelity, accompanied by a quantifiable interaction latency trade-off:
 \begin{itemize}
-    \item \textbf{RQ1 (Improper Dispatch Mitigation)}: Baseline B1 is expected to exhibit a high improper dispatch rate when presented with ambiguous landmarks (e.g., arbitrarily navigating to \texttt{door-north} when the user specified ``門口'') or unfeasible goals (dispatching goals into occupied furniture). In contrast, B2 is expected to eliminate improper dispatches on ambiguous commands via interactive clarification, and substantially reduce unfeasible dispatches via pre-dispatch path checking. The ablation B2$-$Clarification is expected to confirm that clarification specifically prevents ambiguous-goal dispatches.
-    \item \textbf{RQ2 (Zero Unsupported Success Claims)}: When navigation is aborted by Nav2 due to dynamic obstacles or odometry drift, B1 systems relying purely on high-level LLM reasoning may falsely conclude mission success once a goal is accepted. In contrast, B2's strict evidence rule (Eq.~\ref{eq:evidence}) is expected to yield 100\% reporting consistency, completely eliminating false-positive success claims.
-    \item \textbf{RQ3 (Latency Decomposition)}: Incorporating LLM semantic parsing and pre-dispatch checks introduces computational overhead. Segment $T_0 \to T_1$ is expected to add approximately 0.5--1.5\,s (dependent on LLM inference time), while $T_1 \to T_2$ is expected to add 50--150\,ms for sensor freshness verification and Nav2 \texttt{get\_path} computation. Because Nav2 navigation execution ($T_2 \to T_3$, typically 15--60\,s) dominates total task duration, the incremental latency introduced by B2 is expected to represent an acceptable trade-off for physical reliability.
+    \setlength{\itemsep}{1.5pt}
+    \setlength{\parskip}{0pt}
+    \setlength{\parsep}{0pt}
+    \item \textbf{RQ1 (Improper Dispatch Mitigation)}: Baseline B1 is expected to exhibit an elevated improper dispatch rate when presented with ambiguous landmarks (e.g., arbitrarily navigating to \texttt{door-north} when the user specified ``the door'' [\textit{men kou}]) or unfeasible goals (dispatching goals into occupied furniture). In contrast, B2 is designed to eliminate improper dispatches on ambiguous commands via interactive clarification, and substantially reduce unfeasible dispatches via pre-dispatch path checking. The ablation B2$-$Clarification is expected to confirm that clarification specifically prevents ambiguous-goal dispatches.
+    \item \textbf{RQ2 (Zero Unsupported Success Claims)}: When navigation is aborted by Nav2 due to dynamic obstacles or odometry drift, B1 systems relying purely on high-level LLM reasoning may falsely conclude mission success once a goal is accepted. In contrast, B2's strict evidence rule (Eq.~\ref{eq:evidence}) is designed to ensure complete consistency with Nav2 physical execution, preventing false-positive success claims.
+    \item \textbf{RQ3 (Latency Decomposition)}: Incorporating LLM semantic parsing and pre-dispatch checks introduces computational overhead. Segment $T_0 \to T_1$ introduces LLM inference latency, while $T_1 \to T_2$ adds sensor freshness verification and Nav2 \texttt{get\_path} computation time. Because physical Nav2 navigation execution ($T_2 \to T_3$, typically tens of seconds) dominates total task duration, the incremental latency introduced by B2 represents a planned, quantified trade-off for physical reliability.
 \end{itemize}
 
 \begin{table*}[t]
@@ -354,33 +382,38 @@ The proposed validation-aware agent is anticipated to demonstrate clear, measura
 \label{tab:planned_results}
 \centering
 \scriptsize
-\begin{tabular}{lcccccc}
+\setlength{\tabcolsep}{2.5pt}
+\begin{tabular}{@{}p{3.8cm}cccccc@{}}
 \toprule
-\textbf{Experimental Condition} & \textbf{Sample Size ($n$)} & \textbf{Task Accuracy (\%)} & \textbf{Improper Dispatch (\%)} & \textbf{Report Accuracy (\%)} & \textbf{Nav. Success (\%)} & \textbf{Median Latency $T_0 \to T_2$ (s)} \\
+\textbf{Experimental Condition} & \begin{tabular}[c]{@{}c@{}}\textbf{Sample}\\\textbf{Size ($n$)}\end{tabular} & \begin{tabular}[c]{@{}c@{}}\textbf{Task}\\\textbf{Acc. (\%)}\end{tabular} & \begin{tabular}[c]{@{}c@{}}\textbf{Improper}\\\textbf{Disp. (\%)}\end{tabular} & \begin{tabular}[c]{@{}c@{}}\textbf{Report}\\\textbf{Acc. (\%)}\end{tabular} & \begin{tabular}[c]{@{}c@{}}\textbf{Nav.}\\\textbf{Success (\%)}\end{tabular} & \begin{tabular}[c]{@{}c@{}}\textbf{Median Lat.}\\\textbf{$T_0 \to T_2$ (s)}\end{tabular} \\
 \midrule
-\multicolumn{7}{l}{\textit{Planned Simulation Track (40 runs per condition)}} \\
-\quad Baseline B0 (Fixed Menu) & 40 & N/A & N/A & N/A & [Planned: $\ge 85\%$] & [Planned: $<0.1$\,s] \\
-\quad Baseline B1 (Language, No Checks) & 40 & [Planned: 60--75\%] & [Planned: 20--35\%] & [Planned: 70--80\%] & [Planned: 80--90\%] & [Planned: 0.8--1.2\,s] \\
-\quad Baseline B2 (Full Agent) & 40 & [Planned: $\ge 90\%$] & [Planned: $\le 5\%$] & [Planned: $100\%$] & [Planned: 85--95\%] & [Planned: 1.0--1.5\,s] \\
-\addlinespace[3pt]
-\multicolumn{7}{l}{\textit{Planned Real-Robot Track (12 paired runs per condition)}} \\
-\quad Baseline B0 (Fixed Menu) & 12 & N/A & N/A & N/A & [Planned Target] & [Planned Target] \\
-\quad Baseline B1 (Language, No Checks) & 12 & [Planned Target] & [Planned Target] & [Planned Target] & [Planned Target] & [Planned Target] \\
-\quad Baseline B2 (Full Agent) & 12 & [Planned Target] & [Planned Target] & [Planned Target] & [Planned Target] & [Planned Target] \\
-\addlinespace[3pt]
-\multicolumn{7}{l}{\textit{Planned Ablation Track (Test Corpus / Selected Routes)}} \\
-\quad B2 $-$ Clarification & 20 & [Planned Target] & [Planned Elevated] & [Planned: $100\%$] & [Planned Target] & [Planned: 0.9--1.3\,s] \\
-\quad B2 $-$ Agent Pre-Check & 20 & [Planned Target] & [Planned Elevated] & [Planned: $100\%$] & [Planned Target] & [Planned: 0.8--1.2\,s] \\
+\multicolumn{7}{@{}l}{\textit{Planned Simulation Track (40 runs per condition)}} \\
+\quad Baseline B0 (Fixed Menu)          & 40 & N/A     & N/A     & N/A     & ---$^*$ & ---$^*$ \\
+\quad Baseline B1 (Language, No Checks) & 40 & ---$^*$ & ---$^*$ & ---$^*$ & ---$^*$ & ---$^*$ \\
+\quad Baseline B2 (Full Agent)          & 40 & ---$^*$ & ---$^*$ & ---$^*$ & ---$^*$ & ---$^*$ \\
+\addlinespace[1pt]
+\multicolumn{7}{@{}l}{\textit{Planned Real-Robot Track (12 paired runs per condition)}} \\
+\quad Baseline B0 (Fixed Menu)          & 12 & N/A     & N/A     & N/A     & ---$^*$ & ---$^*$ \\
+\quad Baseline B1 (Language, No Checks) & 12 & ---$^*$ & ---$^*$ & ---$^*$ & ---$^*$ & ---$^*$ \\
+\quad Baseline B2 (Full Agent)          & 12 & ---$^*$ & ---$^*$ & ---$^*$ & ---$^*$ & ---$^*$ \\
+\addlinespace[1pt]
+\multicolumn{7}{@{}l}{\textit{Planned Ablation Track (Test Corpus / Selected Routes)}} \\
+\quad Baseline B2 $-$ Clarification     & 20 & ---$^*$ & ---$^*$ & ---$^*$ & ---$^*$ & ---$^*$ \\
+\quad Baseline B2 $-$ Agent Pre-Check   & 20 & ---$^*$ & ---$^*$ & ---$^*$ & ---$^*$ & ---$^*$ \\
 \bottomrule
+\multicolumn{7}{@{}p{\textwidth}@{}}{\scriptsize $^*$Note: Values marked with ``---'' represent planned experimental metrics to be recorded upon protocol execution; no numerical data have been fabricated.} \\
 \end{tabular}
 \end{table*}
 
 \subsection{Planned Analysis Framework}
-Table~\ref{tab:planned_results} outlines the planned comparative analysis framework. In accordance with academic integrity guidelines, numerical values are explicitly presented as design targets and planned analysis categories rather than empirical measurements.
+Table~\ref{tab:planned_results} outlines the planned comparative analysis framework. In accordance with academic integrity guidelines, numerical values are explicitly presented as planned analysis fields rather than synthetic empirical measurements.
 
 \subsection{Failure Mode Taxonomy and Preservation}
 In compliance with Core Principle~5, all evaluation trials resulting in non-arrival will be classified and retained in public repository records under the following taxonomy:
 \begin{itemize}
+    \setlength{\itemsep}{0.8pt}
+    \setlength{\parskip}{0pt}
+    \setlength{\parsep}{0pt}
     \item \texttt{NOT\_READY}: Stale LiDAR data ($>1.0\,\text{s}$), missing TF transforms, or localization covariance exceeding threshold.
     \item \texttt{NO\_PATH}: Nav2 global planner unable to find a valid trajectory accommodating the robot footprint.
     \item \texttt{REJECTED}: Utterance references an unregistered landmark or requests disallowed control commands.
@@ -393,9 +426,7 @@ No failed run will be omitted or classified as an ``outlier'' without logged evi
 
 \section{Conclusion and Future Work}
 
-This paper presented the architecture, methodology, and experimental design for a validation-aware and evidence-grounded AI agent enabling Chinese-language indoor navigation on a TurtleBot3 Burger. By hierarchically separating high-level language reasoning from real-time navigation control, the system constrains LLM output via rigid JSON schemas, verifies targets against an authoritative Landmark Registry, executes strict pre-dispatch sensor and path feasibility checks, and ensures that all user-facing reports are strictly anchored in physical Nav2 execution evidence. The experimental protocol outlines a rigorous, controlled evaluation across 60 language cases, 40 simulation runs, and 12 paired real-robot trials across B0, B1, and B2 baselines.
-
-Future work will execute the planned experimental matrix on the physical TurtleBot3 platform, conduct fine-grained statistical significance testing across segmented latencies, investigate continuous SLAM map updates for dynamic environments, and explore multi-floor navigation extensions.
+This paper presented the architecture, methodology, and experimental design for a validation-aware and evidence-grounded AI agent enabling Chinese-language indoor navigation on a TurtleBot3 Burger. By hierarchically separating high-level language reasoning from real-time navigation control, the system constrains LLM output via rigid JSON schemas, verifies targets against an authoritative Landmark Registry, executes strict pre-dispatch sensor and path feasibility checks, and ensures that all user-facing reports are strictly anchored in physical Nav2 execution evidence. The experimental protocol outlines a rigorous, controlled evaluation across 60 language cases, 40 simulation runs, and 12 paired real-robot trials across B0, B1, and B2 baselines. Future work will execute the planned experimental matrix on the physical TurtleBot3 platform, conduct fine-grained statistical significance testing across segmented latencies, investigate continuous SLAM map updates for dynamic environments, and explore multi-floor navigation extensions.
 
 \bibliographystyle{IEEEtran}
 \bibliography{references}

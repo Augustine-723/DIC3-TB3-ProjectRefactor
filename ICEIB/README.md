@@ -5,7 +5,7 @@
 **Target Publication**: IEEE Conference Proceedings / IEEE Xplore Track  
 **Format**: Official IEEEtran Conference Format (2-Column)  
 **Authors**: Zhi-Heng Chen (7115064009), Cheng-Hao Hsiao (7115064186), Rui-Yu Lin (7115064168), Yuan-Mei Chiu (7115064159), and Yi-Kai Guan (7115093001)  
-**Affiliation**: Group 7, Department of Information and Communication Engineering, National Taiwan University of Science and Technology  
+**Affiliation**: Group 7, TurtleBot3 Project Team  
 
 ---
 

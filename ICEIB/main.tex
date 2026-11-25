@@ -23,10 +23,13 @@
     {\settowidth\labelwidth{\@biblabel{#1}}%
     \leftmargin\labelwidth
     \advance\leftmargin\labelsep
+    \itemsep \IEEEbibitemsep\relax
     \usecounter{enumiv}%
     \let\p@enumiv\@empty
     \renewcommand\theenumiv{\@arabic\c@enumiv}}%
-    \def\IEEEbibitemsep{-0.5pt}%
+    \let\@IEEElatexbibitem\bibitem%
+    \def\bibitem{\@IEEEbibitemprefix\@IEEElatexbibitem}%
+    \def\IEEEbibitemsep{0pt}%
     \sloppy\clubpenalty4000\widowpenalty4000\interlinepenalty500%
     \sfcode`\.=1000\relax}
 \makeatother
@@ -105,15 +108,21 @@ Evaluating mobile robot reliability in tightly constrained environments has rece
 \centering
 \scriptsize
 \setlength{\tabcolsep}{3.5pt}
-\begin{tabular}{p{2.3cm}p{2.4cm}p{2.1cm}p{1.9cm}p{2.2cm}p{2.2cm}p{1.9cm}}
+\begin{tabular}{p{2.3cm}p{2.6cm}p{2.3cm}cp{2.4cm}p{2.4cm}p{2.1cm}}
 \toprule
-\textbf{Approach / Reference} & \textbf{Focus / Method} & \textbf{Target Platform} & \textbf{Chinese NL Parsing} & \textbf{Pre-Dispatch State Check} & \textbf{Evidence-Grounded Reporting} & \textbf{Controlled Isolation} \\
+\begin{tabular}[c]{@{}c@{}}\textbf{Approach /}\\\textbf{Reference}\end{tabular} & 
+\begin{tabular}[c]{@{}c@{}}\textbf{Focus / Primary}\\\textbf{Method}\end{tabular} & 
+\begin{tabular}[c]{@{}c@{}}\textbf{Target}\\\textbf{Platform}\end{tabular} & 
+\begin{tabular}[c]{@{}c@{}}\textbf{Chinese}\\\textbf{NL}\end{tabular} & 
+\begin{tabular}[c]{@{}c@{}}\textbf{Pre-Dispatch}\\\textbf{State Check}\end{tabular} & 
+\begin{tabular}[c]{@{}c@{}}\textbf{Evidence-Grounded}\\\textbf{Reporting}\end{tabular} & 
+\begin{tabular}[c]{@{}c@{}}\textbf{Controlled}\\\textbf{Isolation}\end{tabular} \\
 \midrule
-ReAct \cite{Yao2023react} & Reasoning + Actions & Text / Virtual Web & No & No & Partial & No \\
+ReAct \cite{Yao2023react} & Reasoning + Actions & Text / Web Agents & No & No & Partial (Trace) & No \\
 SayCan \cite{Ahn2022saycan} & Affordance Grounding & Mobile Manipulator & No & Skill Affordance & No & No \\
 Pollini et al. \cite{Pollini2025latency} & LLM-ROS~2 Latency & Gazebo Mobile Robot & No & No & No & No \\
 Nav2 \cite{Macenski2020marathon2} & Modular Navigation & Mobile Ground Robots & N/A & Internal Recovery & No & Fixed Substrate \\
-SLAM Toolbox \cite{Macenski2021slamtoolbox} & Mapping / Localization & Mobile Robots & N/A & Scan Matching / Odom & N/A & N/A \\
+SLAM Toolbox \cite{Macenski2021slamtoolbox} & Mapping / Localization & Mobile Robots & N/A & Scan Match / Odom & N/A & N/A \\
 BARN \cite{Xiao2022barn, Xiao2026barn} & Constrained Benchmark & Clearpath Jackal & N/A & Costmap Collision & No & Benchmark \\
 NavBench \cite{ElHariry2025navbench} & RL Navigation Bench & Wheeled Robots / Sim & N/A & Policy Space & No & Benchmark \\
 \textbf{Proposed System} & \textbf{Validation-Aware Agent} & \textbf{TurtleBot3 Burger} & \textbf{Yes} & \textbf{Yes (Freshness, TF, Path)} & \textbf{Yes (Nav2 Action Log)} & \textbf{Yes (Fixed Nav2)} \\
@@ -382,8 +391,8 @@ The proposed validation-aware agent is anticipated to demonstrate clear improvem
 \label{tab:planned_results}
 \centering
 \scriptsize
-\setlength{\tabcolsep}{2.5pt}
-\begin{tabular}{@{}p{3.8cm}cccccc@{}}
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{@{}p{5.2cm}cccccc@{}}
 \toprule
 \textbf{Experimental Condition} & \begin{tabular}[c]{@{}c@{}}\textbf{Sample}\\\textbf{Size ($n$)}\end{tabular} & \begin{tabular}[c]{@{}c@{}}\textbf{Task}\\\textbf{Acc. (\%)}\end{tabular} & \begin{tabular}[c]{@{}c@{}}\textbf{Improper}\\\textbf{Disp. (\%)}\end{tabular} & \begin{tabular}[c]{@{}c@{}}\textbf{Report}\\\textbf{Acc. (\%)}\end{tabular} & \begin{tabular}[c]{@{}c@{}}\textbf{Nav.}\\\textbf{Success (\%)}\end{tabular} & \begin{tabular}[c]{@{}c@{}}\textbf{Median Lat.}\\\textbf{$T_0 \to T_2$ (s)}\end{tabular} \\
 \midrule
@@ -391,12 +400,12 @@ The proposed validation-aware agent is anticipated to demonstrate clear improvem
 \quad Baseline B0 (Fixed Menu)          & 40 & N/A     & N/A     & N/A     & ---$^*$ & ---$^*$ \\
 \quad Baseline B1 (Language, No Checks) & 40 & ---$^*$ & ---$^*$ & ---$^*$ & ---$^*$ & ---$^*$ \\
 \quad Baseline B2 (Full Agent)          & 40 & ---$^*$ & ---$^*$ & ---$^*$ & ---$^*$ & ---$^*$ \\
-\addlinespace[1pt]
+\addlinespace[2pt]
 \multicolumn{7}{@{}l}{\textit{Planned Real-Robot Track (12 paired runs per condition)}} \\
 \quad Baseline B0 (Fixed Menu)          & 12 & N/A     & N/A     & N/A     & ---$^*$ & ---$^*$ \\
 \quad Baseline B1 (Language, No Checks) & 12 & ---$^*$ & ---$^*$ & ---$^*$ & ---$^*$ & ---$^*$ \\
 \quad Baseline B2 (Full Agent)          & 12 & ---$^*$ & ---$^*$ & ---$^*$ & ---$^*$ & ---$^*$ \\
-\addlinespace[1pt]
+\addlinespace[2pt]
 \multicolumn{7}{@{}l}{\textit{Planned Ablation Track (Test Corpus / Selected Routes)}} \\
 \quad Baseline B2 $-$ Clarification     & 20 & ---$^*$ & ---$^*$ & ---$^*$ & ---$^*$ & ---$^*$ \\
 \quad Baseline B2 $-$ Agent Pre-Check   & 20 & ---$^*$ & ---$^*$ & ---$^*$ & ---$^*$ & ---$^*$ \\
@@ -429,6 +438,7 @@ No failed run will be omitted or classified as an ``outlier'' without logged evi
 This paper presented the architecture, methodology, and experimental design for a validation-aware and evidence-grounded AI agent enabling Chinese-language indoor navigation on a TurtleBot3 Burger. By hierarchically separating high-level language reasoning from real-time navigation control, the system constrains LLM output via rigid JSON schemas, verifies targets against an authoritative Landmark Registry, executes strict pre-dispatch sensor and path feasibility checks, and ensures that all user-facing reports are strictly anchored in physical Nav2 execution evidence. The experimental protocol outlines a rigorous, controlled evaluation across 60 language cases, 40 simulation runs, and 12 paired real-robot trials across B0, B1, and B2 baselines. Future work will execute the planned experimental matrix on the physical TurtleBot3 platform, conduct fine-grained statistical significance testing across segmented latencies, investigate continuous SLAM map updates for dynamic environments, and explore multi-floor navigation extensions.
 
 \bibliographystyle{IEEEtran}
+\IEEEtriggeratref{3}
 \bibliography{references}
 
 \end{document}
